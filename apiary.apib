@@ -1,0 +1,138 @@
+FORMAT: 1A
+HOST: http://polls.apiblueprint.org/
+
+# pipwave Phone Verification 
+
+The Phone Verification Solution<br><br>
+API integration guide<br><br><br><br><br>
+Version 0.1<br>
+2019-01-16<br>
+
+## Revision
+| Version | Date | Author | Remark |
+|---|---|---|---|
+| 0.1 | 2019-01-16 | Darren Ng | Start of document |
+
+## URL
+All API has the same URL, which is:
+
+- Live Environment: https://api.pipwave.com/phone-verify
+- Test Environment: https://staging-api.pipwave.com/phone-verify
+
+In order to execute the API of older version, calls must be made instead to (eg v1):
+
+- Live Environment: https://api.pipwave.com/v1/phone-verify
+- Test Environment: https://staging-api.pipwave.com/v1/phone-verify
+
+## Security
+
+### Timestamping
+Each API will require a timestamp to be attached. This timestamp has to be in UNIX integer format with timezone GMT+0. For eg: 1456790400 = 2016-03-01 00:00:00 (GMT+0).
+
+### Signature
+Signature generation is dependant on the APIs being called. Some API do not require signature, while others require. Note the “Signature” section for each API for the list of data required to be included for signature generation.
+<br><br>For those API which require signature, signature generation goes through the same process as Payment API (see: docs.pipwave.com)
+<br><br>Put the resulting string in “signature” parameter when making the API request.
+
+### SSL
+All APIs must be called via SSL.
+
+### API Key
+All calls must include the api_key parameter (which will be reminded in individual API documents). In addition to including this parameter in the request body, every request must also contain the x-api-key header which contains the same key. This allows us to quickly verify the authenticity of the request before proceeding to process the API request. The API Key can be obtained from Merchant portal > Development > Setting page.
+
+### API Secret
+When signature is required to be generated, API Secret will be used to determine authenticity. The API Secret can also be obtained from Merchant portal > Development > Setting page.
+
+## API Status Code
+
+| API Code | Reason |
+|---|---|
+| 200 | OK - For send-token API, it means sending/resending successful, for verify-token-answer API, it means the answer is correct | 
+| 400 | Failed to fulfill request, see message |
+| 401 | Invalid API signature |
+| 403 | Invalid API key |
+| 404 | Invalid action |
+| 500 | Generic server error, see message |
+| 5001 | Invalid phone number |
+| 5002 | Too frequent request, seconds_till_resend will be included in package |
+| 5003 | Duplicate verification request for the same contact number |
+| 5004 | Insufficient credit |
+| 5005 | Solution has been disabled, please contact the administrator |
+| 5006 | Merchant has disabled the solution, please enable it at Merchant Portal |
+| 5051 | Session has expired or reference not found, please try again |
+| 5052 | Incorrect answer provided |
+| 9001 | Parameter error, see message |
+
+#### API List [/phone-verify]
+
+##### Send Token [POST]
+
++ Request
+
+    + Body
+    
+            {
+                "action": "send-token",
+                "timestamp": 1539677150,
+                "api_key": "sdvdas23t3btg34bhb",
+                "user_id": "505315",
+                "contact_no_country_dialing_code": "60",
+                "contact_no ": "123456789"
+            }
+    
+    + Schema
+    
+            {
+                "type": "object",
+                "properties": {
+                    "action": {
+                        "type": "string(32)"
+                    },
+                    "timestamp": {
+                        "type": "timestamp(32)"
+                    },
+                    "api_key": {
+                        "type": "string(32)"
+                    },
+                    "user_id": {
+                        "type": "string (32)"
+                    },
+                    "contact_no_country_dialing_code": {
+                        "type": "string (5)"
+                    },
+                    "contact_no": {
+                        "type": "string (32)"
+                    }
+                }
+            }
+
++ Response 200 (application/json)
+
+    + Body
+
+            {
+                "status": "200",
+                "message": "message",
+                "reference": 123,
+                "seconds_till_resend": 20
+            }
+    
+    + Schema
+    
+            {
+                "type": "object",
+                "properties": {
+                    "status": {
+                        "type": "string(5)"
+                    },
+                    "message": {
+                        "type": "string (255)"
+                    },
+                    "reference": {
+                        "type": "integer"
+                    },
+                    "seconds_till_resend": {
+                        "type": "integer"
+                    }
+                }
+            }
